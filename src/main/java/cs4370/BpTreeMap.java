@@ -172,7 +172,6 @@ public class BpTreeMap <K extends Comparable <K>, V>
 	        for(int i = 0; i < curr.nKeys; i++){
 	        	Map.Entry<K, V> x = new AbstractMap.SimpleEntry<K, V>(curr.key[i],(V)curr.ref[i]);  
 	        	enSet.add(x);
-	        	//out.println("ORDER ADDED: key: " + x.getKey() + " value: "+x.getValue());
 	        }
 	        if (curr.ref[curr.nKeys] != null){
 	        	curr = (BpTreeMap<K, V>.Node)curr.ref[curr.nKeys] ; 
@@ -181,11 +180,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
 	        }
 	        
         }
-        //  T O   B E   I M P L E M E N T E D
-      /* Iterator i = enSet.iterator(); 
-       while(i.hasNext()){
-    	   out.println("Key: "+ ((Map.Entry<K, V>)i.next()).getKey());
-       }*/
+       
         return enSet;
     } // entrySet
 
@@ -242,10 +237,9 @@ public class BpTreeMap <K extends Comparable <K>, V>
      * Return the portion of the B+Tree map where key < toKey.
      * @return  the submap with keys in the range [firstKey, toKey)
      */
-    /*public SortedMap <K,V> headMap (K toKey)*/
     public BpTreeMap<K,V> headMap(K toKey)
     {
-	System.out.println("Retreiving headMap from " + this.firstKey() + " to " + toKey);
+    	System.out.println("Retreiving headMap from " + this.firstKey() + " to " + toKey);
     	return this.subMap(this.firstKey(), toKey);
         
     } // headMap
@@ -253,15 +247,12 @@ public class BpTreeMap <K extends Comparable <K>, V>
     /********************************************************************************
      * Return the portion of the B+Tree map where fromKey <= key.
      * @return  the submap with keys in the range [fromKey, lastKey]
-     */ 
-    /*public SortedMap <K,V> tailMap (K fromKey)*/
-     
+     */      
     public BpTreeMap <K,V> tailMap (K fromKey)
     {
 	System.out.println("Retreiving tailMap from " + fromKey + " to " + this.lastKey());
-	//return this.subMap(fromKey, this.lastKey()); 
-        //  T O   B E   I M P L E M E N T E D
-	BpTreeMap <K,V> map = new BpTreeMap<>(classK,classV);
+	return this.subMap(fromKey, this.lastKey()); 
+	/*BpTreeMap <K,V> map = new BpTreeMap<>(classK,classV);
         Node curr = this.firstLeaf;
         boolean isFinished = false; 
         while(curr != null){
@@ -269,9 +260,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
 	        	if(curr.key[i].compareTo(fromKey) >= 0 ){
 	        		map.put(curr.key[i], (V)curr.ref[i]); 
 	        	} 
-			
-	        	//out.println("ORDER ADDED: key: " + x.getKey() + " value: "+x.getValue());
-	        }
+			}
 	        if (curr.ref[curr.nKeys] != null ){
 	        	curr = (BpTreeMap<K, V>.Node)curr.ref[curr.nKeys] ; 
 	        }else {
@@ -279,7 +268,7 @@ public class BpTreeMap <K extends Comparable <K>, V>
 	        }	        
         }
     	
-        return map;
+        return map;*/
     } // tailMap
 
     /********************************************************************************
@@ -287,14 +276,10 @@ public class BpTreeMap <K extends Comparable <K>, V>
      * i.e., fromKey <= key < toKey.
      * @return  the submap with keys in the range [fromKey, toKey)
      */
-    /*public SortedMap <K,V> subMap (K fromKey, K toKey)*/
-     
     public BpTreeMap <K,V> subMap (K fromKey, K toKey)
     {
-        //  T O   B E   I M P L E M E N T E D
-    	//SortedMap <K,V> map = new BpTreeMap<>(classK,classV);
-	System.out.println("Retrieving submap from " + fromKey + " to " + toKey);
-	BpTreeMap <K,V> map = new BpTreeMap<>(classK,classV);
+		System.out.println("Retrieving submap from " + fromKey + " to " + toKey);
+		BpTreeMap <K,V> map = new BpTreeMap<>(classK,classV);
         Node curr = this.firstLeaf;
         boolean isFinished = false; 
         while(curr != null){
@@ -380,11 +365,11 @@ public class BpTreeMap <K extends Comparable <K>, V>
     @SuppressWarnings("unchecked")
     private Node insert (K key, V ref, Node n)
     {
-	/*
+	
         out.println ("=============================================================");
         out.println ("insert: key = " + key);
         out.println ("=============================================================");
-	*/
+	
         Node rt = null;
         
         if (n.isLeaf) {                                                      // handle leaf node level
@@ -403,40 +388,34 @@ public class BpTreeMap <K extends Comparable <K>, V>
         } else {                                                             // handle internal node level
             int i = n.find (key);                                            // find "<=" position
             rt = insert (key, ref, (Node) n.ref[i]);                         // recursive call to insert, returning n's child
-            if (DEBUG){
-                //out.println ("insert: handle internal node level");
-            }  
             
             Node lt = (Node) n.ref[i];
-            if(hasSplit){ 
-                  
-           
+            if(hasSplit){ 													 // if child node has split  
+                 
                 if(n.nKeys < ORDER-1){
                     wedge(lt.key[lt.nKeys-1], rt, n, i, false); 
                     hasSplit = false; 
-                    
-                }else {
-                    //out.println("internal node split");
-                   
-                   
+                    if(!lt.isLeaf){
+    		            lt.nKeys--;
+    	            }
+                }else {               
                     Node rightTree = split(lt.key[lt.nKeys-1], rt, n, false);
                     hasSplit = true; 
                     
-                
+                    if(!lt.isLeaf){
+    		            lt.nKeys--;
+    	            }
+                    
                     if(n==root){
-                    root = this.makeRoot(n, n.key[n.nKeys-1], rightTree); 
-                    n.nKeys--;
+	                    root = this.makeRoot(n, n.key[n.nKeys-1], rightTree); 
+	                    n.nKeys--;
                     }
                     
                     return rightTree;                     
                 }
-                if(!lt.isLeaf){
-            out.println("it got inside");
-            lt.nKeys--;
-            }
+               
                
             }
-                //  T O   B E   I M P L E M E N T E D
         } // if
         if (DEBUG) print (root, 0);
         return rt;                                                               // return right node
@@ -534,21 +513,10 @@ public class BpTreeMap <K extends Comparable <K>, V>
             for (int i = 1; i <= totalKeys; i += 2){
                 bpt.put (i, i * i);
             }
-	    for(int i=2; i<=totalKeys; i+=2){
-		bpt.put(i,i*i);
-	    }
-	    /*/
-            for (int i = totalKeys; i > 0; i-=2){
-                bpt.put (i, i * i);
-            } 
-            /*bpt.put(8, 64);
-            bpt.put(9, 81);
-            bpt.put(7, 41);
-            bpt.put(12, 91);
-            bpt.put(5, 25);
-            bpt.put(4, 16);
-            bpt.put(3, 9);
-            bpt.put(2, 4);*/
+		    for(int i=2; i<=totalKeys; i+=2){
+				bpt.put(i,i*i);
+		    }
+	    
         } // if
 
         bpt.print (bpt.root, 0);
